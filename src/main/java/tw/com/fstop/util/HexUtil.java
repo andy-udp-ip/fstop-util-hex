@@ -16,8 +16,19 @@ package tw.com.fstop.util;
 import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * Class for dump binary data.
+ * Supports ASCII and EBCDIC encoding.
+ *
+ * @since 1.0.0
+ */
 public class HexUtil
 {
+    /**
+     * Convert byte array data to hex string.
+     * @param b byte array to convert
+     * @return result string
+     */
     public static String byteArrayToHexString(byte[] b)
     {
         char hexDigit[] =
@@ -31,6 +42,11 @@ public class HexUtil
         return buf.toString();
     }
 
+    /**
+     * convert hex string to byte array
+     * @param s hex string to convert
+     * @return result byte array
+     */
     public static byte[] hexStringToByteArray(String s)
     {
         int len = s.length();
@@ -242,6 +258,10 @@ public class HexUtil
         dumpOutputStream = stream;
     }
     
+    /**
+     * common function for output debug messages.
+     * @param msg output message
+     */
     void debug(String msg)
     {
         //System.out.print(msg);
@@ -282,6 +302,13 @@ public class HexUtil
  
     }
     
+    /**
+     * Dump input byte array to message output.
+     * 
+     * @param option dump options: DUMP_HEX, DUMP_ASCII, DUMP_EBCDIC
+     * @param block byte array to dump
+     * @param length data size to dump
+     */
     void toHexString(int option, byte[] block, int length) 
     {
         StringBuffer buf = new StringBuffer("");
@@ -370,6 +397,11 @@ public class HexUtil
         debug("\n");
     }
     
+    /**
+     * Convert byte to hex string and appends to input string buffer.
+     * @param b byte to convert
+     * @param buf string buffer to append
+     */
     void byte2hex(byte b, StringBuffer buf) 
     {
          char[] hexChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
