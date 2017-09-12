@@ -107,6 +107,17 @@ public class HexUtilTest
         assertThat(h).isEqualToIgnoringCase(s);
         
         
+        //--
+        s = "0123456789abcdef";
+        b = HexUtil.pack(s);
+        long l = HexUtil.byteArrayToLong(b, false);
+        System.out.println("Long=" + l);
+        l = l + 1;
+        System.out.println("Long=" + l);
+        b = HexUtil.longToByteArray(l);
+        s = HexUtil.byteArrayToHexString(b);
+        System.out.println("LONG=" + s);
+         
         //-------------------------------------------
         HexUtil util = new HexUtil();
         

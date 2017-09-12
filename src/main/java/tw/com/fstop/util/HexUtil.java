@@ -158,6 +158,18 @@ public class HexUtil
 //            { (byte) value, (byte) (value >>> 8), (byte) (value >>> 16), (byte) (value >>> 24) };
         
     }
+
+    /**
+     * Convert long value to byte array.
+     * LITTLE_ENDIAN
+     * @param value long value
+     * @return byte array
+     */
+    public static final byte[] longToByteArray(long value) 
+    {
+        byte[] bytes = ByteBuffer.allocate(8).order(java.nio.ByteOrder.LITTLE_ENDIAN).putLong(value).array();        
+        return bytes;
+    }    
     
     /**
      * Convert byte array to int
@@ -174,6 +186,24 @@ public class HexUtil
         else
         {
             return java.nio.ByteBuffer.wrap(buf).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+        }
+    }
+
+    /**
+     * Convert byte array to long
+     * @param buf byte array to convert
+     * @param isBigEndian  true = big endian, false = little endian
+     * @return result long value
+     */
+    public static long byteArrayToLong(byte [] buf, boolean isBigEndian)
+    {
+        if (isBigEndian)
+        {
+            return java.nio.ByteBuffer.wrap(buf).getLong();          
+        }
+        else
+        {
+            return java.nio.ByteBuffer.wrap(buf).order(java.nio.ByteOrder.LITTLE_ENDIAN).getLong();
         }
     }
     
