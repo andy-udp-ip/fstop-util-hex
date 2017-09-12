@@ -29,14 +29,20 @@ public class HexUtil
 {
     
     /**
+     * <pre>
      * byte order convert
-     * AE41 5652       high byte first      high word first  = 0  (預設值)
+     * AE41 5652       high byte first      high word first  = 0  (default 預設值)
      * 5652 AE41       high byte first      low word first   = 1
      * 41AE 5256       low byte first      high word first   = 2
      * 5256 41AE       low byte first      low word first    = 3
-     * @param data
-     * @param order
-     * @return
+     * </pre>
+     * @param data byte array to convert
+     * @param order 
+     *   0 = high byte first high word first,
+     *   1 = high byte first low word first,
+     *   2 = low byte first high word first,
+     *   3 = low byte first low word first
+     * @return result byte array
      */
     public static byte [] byteOrder(byte [] data, int order)
     {
