@@ -15,15 +15,201 @@ package tw.com.fstop.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
- * Class for dump binary data.
+ * Class for dump binary data and byte array operation.
+ * 
  * Supports ASCII and EBCDIC encoding.
  *
  * @since 1.0.0
  */
 public class HexUtil
 {
+    
+    /**
+     * byte order convert
+     * AE41 5652       high byte first      high word first  = 0  (預設值)
+     * 5652 AE41       high byte first      low word first   = 1
+     * 41AE 5256       low byte first      high word first   = 2
+     * 5256 41AE       low byte first      low word first    = 3
+     * @param data
+     * @param order
+     * @return
+     */
+    public static byte [] byteOrder(byte [] data, int order)
+    {
+        byte [] ret = null; //new byte [data.length];
+        
+        ret = Arrays.copyOf(data, data.length);
+        
+        if (order == 0)  //high byte first      high word first
+        {
+            return ret;
+        }
+        else if (order == 1) //high byte first      low word first
+        {
+            //word swap 0,1 -> 2,3
+            //AE41 5652 -> 5652 AE41
+            for(int i = 0; ret.length >= 4 && i < ret.length;)
+            {
+                //low word first
+                ret[i] = data[i + 2];
+                ret[i+1] = data[i + 3];
+                
+                ret[i + 2] = data[i];
+                ret[i + 3] = data[i + 1];
+                i = i + 4;
+            }
+        }
+        else if (order == 2) //low byte first      high word first
+        {
+            //byte swap 0,1 -> 2,3
+            //AE41 5652 -> 41AE 5256
+            for(int i = 0; ret.length >= 2 && i < ret.length;)
+            {
+                ret[i + 1] = data[i];
+                ret[i] = data[i + 1];
+                i = i + 2;
+            }           
+        }
+        else if (order == 3) //low byte first      low word first
+        {
+            //word & byte swap 0,1 -> 2,3
+            //AE41 5652 -> 5256 41AE
+            for(int i = 0; ret.length >= 4 && i < ret.length;)
+            {
+                //low word first, low byte first
+                ret[i] = data[i + 3];
+                ret[i+1] = data[i + 2];
+                
+                ret[i + 2] = data[i + 1];
+                ret[i + 3] = data[i];
+                i = i + 4;
+            }           
+        }
+        
+        return ret;
+    }
+
+    /**
+     * Convert float to byte array.
+     * LITTLE_ENDIAN
+     * @param f float value
+     * @return byte array of IEEE 754 floating-point single-format bit layout
+     */
+    public static final byte [] floatToByteArray(float f)
+    {
+        //The initial order of a byte buffer is always BIG_ENDIAN.
+        ByteBuffer bbuf = ByteBuffer.allocate(4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        bbuf.putFloat(0, f);
+        
+        byte [] b = null;
+        
+        //IEEE 754 floating-point single-format bit layout
+        if (bbuf.hasArray())
+        {
+            b = bbuf.array();            
+        }
+
+//LITTLE_ENDIAN        
+//IEEE 754 floating-point single-format bit layout        
+//        int bits = Float.floatToIntBits(f);
+//        byte[] bytes = new byte[4];
+//        bytes[0] = (byte)(bits & 0xff);
+//        bytes[1] = (byte)((bits >> 8) & 0xff);
+//        bytes[2] = (byte)((bits >> 16) & 0xff);
+//        bytes[3] = (byte)((bits >> 24) & 0xff);
+//        b = bytes;
+        
+        return b;
+    }
+    
+    /**
+     * Convert int to byte array.
+     * LITTLE_ENDIAN
+     * 將 int 數值轉成 byte array
+     * @param value   int 數值
+     * @return        byte array
+     */
+    //byte[] bytes = ByteBuffer.allocate(4).putInt(1695609641).array();
+    //final will prevent the method from being hidden by subclasses
+    public static final byte[] intToByteArray(int value) 
+    {
+        byte[] bytes = ByteBuffer.allocate(4).order(java.nio.ByteOrder.LITTLE_ENDIAN).putInt(value).array();        
+        return bytes;
+
+//BIG_ENDIAN
+//        return new byte[] {
+//                (byte)(value >>> 24),
+//                (byte)(value >>> 16),
+//                (byte)(value >>> 8),
+//                (byte)value};
+
+//LITTLE_ENDIAN        
+//        return new byte[]
+//            { (byte) value, (byte) (value >>> 8), (byte) (value >>> 16), (byte) (value >>> 24) };
+        
+    }
+    
+    /**
+     * Convert byte array to int
+     * @param buf byte array to convert
+     * @param isBigEndian  true = big endian, false = little endian
+     * @return result int value
+     */
+    public static int byteArrayToInt(byte [] buf, boolean isBigEndian)
+    {
+        if (isBigEndian)
+        {
+            return java.nio.ByteBuffer.wrap(buf).getInt();          
+        }
+        else
+        {
+            return java.nio.ByteBuffer.wrap(buf).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+        }
+    }
+    
+    /**
+     * Set bit value of given byte
+     * @param b           要設定的 byte
+     * @param pos         要設定的位元 由 7~0 
+     * @param op          0=清除, 1=設定, 2=反向
+     * @return result byte
+     */
+    public static byte setBit(byte b, int pos, int op)
+    {
+        if (op == 0)
+        {
+            return (byte) (b & ~(1 << pos));
+        }
+        else if (op == 1)
+        {
+            return (byte) (b | (1 << pos));         
+        }
+        else
+        {
+            return (byte) (b ^ (1 << pos));
+        }
+    }
+
+    /**
+     * Convert byte array to bit string 
+     * @param bitMap byte array to convert
+     * @return result bit string
+     */
+    public static String showBitMap(byte[] bitMap)
+    {
+        String ret = "";
+        for(int i=0; i < bitMap.length; i++)
+        {
+            ret = ret + String.format("%8s", Integer.toBinaryString(bitMap[i] & 0xFF)).replace(' ', '0');
+        }
+        return ret;
+    }
+    
+    
     /**
      * Convert byte array data to hex string.
      * @param b byte array to convert

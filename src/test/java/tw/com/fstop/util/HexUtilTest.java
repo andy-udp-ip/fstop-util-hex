@@ -19,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.math.BigInteger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -42,8 +43,55 @@ public class HexUtilTest
     public void testHexUtil() throws FileNotFoundException
     {
         String s = "0123456789ABCDEFBB40";
+        byte [] c = null;
         byte [] b = null;
+        byte [] a = null;
         String h = null;
+        float f;
+        int i;
+        int j;
+        
+        b = new byte [2];
+        b[0] = (byte) 0xb7;
+        b[1] = 0x00;
+        
+        h = HexUtil.showBitMap(b);
+        assertThat(h).isEqualToIgnoringCase("1011011100000000");
+        
+        b[0] = HexUtil.setBit(b[0], 7, 0);
+        h = HexUtil.showBitMap(b);
+        assertThat(h).isEqualToIgnoringCase("0011011100000000");
+                
+        b = new byte[] {(byte) 0xAE, (byte) 0x41, (byte) 0x56, (byte) 0x52};
+        a = HexUtil.byteOrder(b, 0);
+        assertThat(b).isEqualTo(a);
+        
+        c = new byte[] {(byte) 0x56, (byte) 0x52, (byte) 0xAE, (byte) 0x41};
+        a = HexUtil.byteOrder(b, 1);
+        assertThat(a).isEqualTo(c);
+        
+        c = new byte[] {(byte) 0x41, (byte) 0xAE, (byte) 0x52, (byte) 0x56};
+        a = HexUtil.byteOrder(b, 2);
+        assertThat(a).isEqualTo(c);
+
+        c = new byte[] {(byte) 0x52, (byte) 0x56, (byte) 0x41, (byte) 0xAE};
+        a = HexUtil.byteOrder(b, 3);
+        assertThat(a).isEqualTo(c);
+        
+        f = 100;
+        //IEEE 754 floating-point single-format bit layout
+        c = new byte[] {(byte) 0x00, (byte) 0x00, (byte) 0xc8, (byte) 0x42};
+        b = HexUtil.floatToByteArray(f);
+        assertThat(b).isEqualTo(c);
+        
+        i = 100;
+        c = new byte[] {(byte) 0x64, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        b = HexUtil.intToByteArray(i);
+        assertThat(b).isEqualTo(c);
+        
+        j = HexUtil.byteArrayToInt(b, false);
+        assertThat(j).isEqualTo(i);
+        
         
         b = HexUtil.hexStringToByteArray(s);
         assertNotNull(b);
